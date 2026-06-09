@@ -15,16 +15,23 @@
           file_no_path=$1
           [ -z "$file_no_path" ] && exit 1
           raw_name="''${file_no_path%.abc}"
-          ${pkgs.abcmidi}/bin/abc2midi "$file_no_path" -o "''${raw_name}.mid" >/dev/null 2>&1
-          ${pkgs.fluidsynth}/bin/fluidsynth -n -i -T wav -F "''${raw_name}.wav" "$SOUNDFONT" "''${raw_name}.mid" >/dev/null 2>&1
-          ${pkgs.pulseaudio}/bin/paplay "''${raw_name}.wav" >/dev/null 2>&1
+          echo "[ABC] Compiling ''${file_no_path}..."
+          ${pkgs.abcmidi}/bin/abc2midi "$file_no_path" -o "''${raw_name}.mid"
+          echo "[ABC] Synthesizing MIDI..."
+          ${pkgs.fluidsynth}/bin/fluidsynth -n -i -T wav -F "''${raw_name}.wav" "$SOUNDFONT" "''${raw_name}.mid"
+          echo "[ABC] Playing audio..."
+          ${pkgs.pulseaudio}/bin/paplay "''${raw_name}.wav"
           rm -f "''${raw_name}.wav" "''${raw_name}.mid"
         '';
 
         watchABC = pkgs.writeShellScriptBin "watch-abc" ''
           file=$1
           [ -z "$file" ] && exit 1
-          echo "$file" | ${pkgs.entr}/bin/entr -rc ${compileABC}/bin/compile-abc "$file" >/dev/null 2>&1
+          echo "=== ABC Live Watcher Active: $file ==="
+          while true; do
+            echo "$file" | ${pkgs.entr}/bin/entr -prd ${compileABC}/bin/compile-abc "$file"
+            sleep 0.1
+          done
         '';
 
         abc-station = pkgs.writeShellScriptBin "abc-station" ''

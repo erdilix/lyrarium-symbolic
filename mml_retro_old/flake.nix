@@ -36,24 +36,31 @@
           raw_name="''${file_no_path%.mml}"
           base_name="''${raw_name,,}"
           INCLUDE_DIR="${ppmck}/nes_include"
-          ${ppmck}/bin/ppmckc "$file_no_path" >/dev/null 2>&1
+          echo "[MML] Compiling ''${file_no_path}..."
+          ${ppmck}/bin/ppmckc "$file_no_path"
           echo " .include \"ppmck.asm\"" > local_master.asm
           echo " .include \"''${base_name}.h\"" >> local_master.asm
           rm -rf ./ppmck.asm ./ppmck
           ln -sf "$INCLUDE_DIR/ppmck.asm" ./ppmck.asm
           ln -sf "$INCLUDE_DIR/ppmck" ./ppmck
-          ${ppmck}/bin/nesasm -sn -raw ./local_master.asm >/dev/null 2>&1
+          echo "[MML] Assembling NES binary..."
+          ${ppmck}/bin/nesasm -sn -raw ./local_master.asm
           rm -f local_master.asm ./ppmck.asm ./ppmck
           if [ -f "local_master.nes" ]; then
               mv "local_master.nes" "''${base_name}.nsf"
-              ${pkgs.zxtune}/bin/zxtune123 --paudio --file "''${base_name}.nsf" >/dev/null 2>&1
+              echo "[MML] Playing ''${base_name}.nsf..."
+              ${pkgs.zxtune}/bin/zxtune123 --paudio --file "''${base_name}.nsf"
           fi
         '';
 
         watchMML = pkgs.writeShellScriptBin "watch-mml" ''
           file=$1
           [ -z "$file" ] && exit 1
-          echo "$file" | ${pkgs.entr}/bin/entr -rc ${compileMML}/bin/compile-mml "$file" >/dev/null 2>&1
+          echo "=== MML Live Watcher Active: $file ==="
+          while true; do
+            echo "$file" | ${pkgs.entr}/bin/entr -prd ${compileMML}/bin/compile-mml "$file"
+            sleep 0.1
+          done
         '';
 
         mml-station = pkgs.writeShellScriptBin "mml-station" ''

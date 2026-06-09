@@ -42,7 +42,7 @@ do_edit_neovim() {
     
     # Robust terminal detection
     local term_cmd=""
-    for term in "$TERMINAL" x-terminal-emulator ghostty alacritty kitty xterm; do
+    for term in "$TERMINAL" x-terminal-emulator ghostty alacritty kitty wezterm foot xterm; do
         if [ -n "$term" ] && command -v "$term" >/dev/null 2>&1; then
             term_cmd="$term"
             break
@@ -54,15 +54,16 @@ do_edit_neovim() {
         return
     fi
 
-    # 1. Start the watcher in the BACKGROUND with setsid and CD
+    # 1. Start the WATCHER/PLAYER in its own terminal (Visible)
     WATCH_BIN=${MML_WATCH_BIN:-watch-mml}
-    (cd "$MML_DIR" && exec setsid "$WATCH_BIN" "$file" < /dev/null > /dev/null 2>&1) &
+    (exec setsid "$term_cmd" -e sh -c "cd \"$MML_DIR\" && exec \"$WATCH_BIN\" \"$file\"") &
     PLAYER_PID=$!
 
-    # 2. Start the editor in the FOREGROUND terminal (BLOCKING)
-    "$term_cmd" -e "$EDITOR" "$MML_DIR/$file"
+    # 2. Start the EDITOR in the current or a new terminal (Blocking)
+    # Use sh -c for better compatibility and to ensure the Nix environment is respected
+    "$term_cmd" -e sh -c "cd \"$MML_DIR\" && exec \"$EDITOR\" \"$file\""
 
-    # 3. Clean up
+    # 3. Clean up the watcher terminal when Neovim exits
     cleanup_player
 }
 

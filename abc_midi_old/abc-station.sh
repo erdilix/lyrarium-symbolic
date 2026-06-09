@@ -11,7 +11,17 @@ PLAYER_PID=0
 # --- Helper: Sound Cleanup ---
 cleanup_player() {
     if [ "$PLAYER_PID" -ne 0 ]; then
-        kill -- -$(ps -o pgid= -p $PLAYER_PID | tr -d ' ') 2>/dev/null
+        # Find PGID and kill group, but ONLY if it's not our own group!
+        local pgid
+        pgid=$(ps -o pgid= -p $PLAYER_PID | tr -d ' ')
+        local my_pgid
+        my_pgid=$(ps -o pgid= -p $$ | tr -d ' ')
+
+        if [ -n "$pgid" ] && [[ "$pgid" =~ ^[0-9]+$ ]] && [ "$pgid" != "$my_pgid" ]; then
+            kill -- -"$pgid" 2>/dev/null
+        else
+            kill "$PLAYER_PID" 2>/dev/null
+        fi
         PLAYER_PID=0
     fi
 }
@@ -23,7 +33,7 @@ play_midi() {
     if [ -n "$file" ]; then
         cleanup_player
         COMPILE_BIN=${ABC_COMPILE_BIN:-compile-abc}
-        (cd "$ABC_DIR" && "$COMPILE_BIN" "$file") >/dev/null 2>&1 &
+        (cd "$ABC_DIR" && exec setsid "$COMPILE_BIN" "$file" >/dev/null 2>&1) &
         PLAYER_PID=$!
     fi
 }
@@ -34,8 +44,24 @@ watch_midi() {
     file=$(find "$ABC_DIR" -type f -name "*.abc" -printf "%P\n" | $MENU_LAUNCHER "Select ABC to WATCH (Live Edit):")
     if [ -n "$file" ]; then
         cleanup_player
+        
+        # Terminal detection for the popup watcher
+        local term_cmd=""
+        for term in "$TERMINAL" x-terminal-emulator ghostty alacritty kitty wezterm foot xterm; do
+            if [ -n "$term" ] && command -v "$term" >/dev/null 2>&1; then
+                term_cmd="$term"
+                break
+            fi
+        done
+
         WATCH_BIN=${ABC_WATCH_BIN:-watch-abc}
-        (cd "$ABC_DIR" && "$WATCH_BIN" "$file") >/dev/null 2>&1 &
+        if [ -n "$term_cmd" ]; then
+            # Pop up a separate window for the watcher/player logs
+            (exec setsid "$term_cmd" -e sh -c "cd \"$ABC_DIR\" && exec \"$WATCH_BIN\" \"$file\"") &
+        else
+            # Fallback to background if no terminal detected
+            (cd "$ABC_DIR" && exec setsid "$WATCH_BIN" "$file") &
+        fi
         PLAYER_PID=$!
         
         "$EDITOR" "$ABC_DIR/$file"
