@@ -1,9 +1,11 @@
 # Lyrarium Symbolic
-musical motif reference organizor.
-This is a POC slop version, each directory is an islated implementation of each possible approach.
+Musical motif reference organizer.
 
-### Project Overview
-There are currently 4 version of this project. you can try each of them by run `nix run` command inside each of them.
+**Goal**: Pinterest and Obsidian but for music, aims to make it a minimal lightweight portable tool for jotting down musical ideas.
+
+This is a POC slop version, each directory is an isolated implementation of each possible approach.
+
+There are currently 4 versions of this project. you can try each of them by running `nix run` command inside each of them.
 
 #### Quick Start
 1. Install Nix: 
@@ -23,18 +25,18 @@ There are currently 4 version of this project. you can try each of them by run `
 - **`Ctrl + r`**:
 - **`Ctrl + x`**:
 
-**remarks**: Depends on your rofi configuration, this can conflict with rofi naive keybinds. 
+**remarks**: Depends on your rofi configuration, this can conflict with rofi native keybinds. 
 
 #### TUI (WIP)
 ...
 
 ### TODO 
 (unfinished roadmap)
-- [x] make MML, ABC syntax functionable 
+- [x] make MML, ABC syntax functional 
 - [ ] better query: features CRUD.
 - [ ] better query: sorted by features.
 - [ ] better query: files clustering.
-- [ ] refactor: make it minimal, get rid of unnecessary bloated logics.
+- [ ] refactor: make it minimal, get rid of unnecessary bloated logic.
 - [ ] TUI mode: keybinds.
 - [ ] TUI mode: no more than 1 terminal needed.
 - [ ] TUI mode: make it run in termux.
