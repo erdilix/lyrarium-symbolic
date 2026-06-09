@@ -1,3 +1,5 @@
+author: gemini
+---
 # Post-Mortem: Debugging the `playretro` MML Compilation & Playback Pipeline
 
 **Date:** June 9, 2026  

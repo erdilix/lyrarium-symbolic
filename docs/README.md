@@ -5,8 +5,9 @@ author: gemini
 Welcome to the documentation for Lyrarium Symbolic, a multi-environment music synthesis platform.
 
 ## 🏗️ Architecture
-- [Project Overview](overview.md) - High-level summary of the suite and available stations.
-- [Architecture v2](architecture-v2.md) - Overview of the project structure and synthesis pipelines.
+- [Architectural Overview](architecture-overview.md) - High-level map of the project's tiers and workflow.
+- [Project Overview](overview.md) - Summary of available stations and features.
+- [Architecture v2](architecture-v2.md) - Technical deep-dive into the synthesis pipelines.
 
 ## 📖 Guides
 - [Timing Synchronization](guides/timing-synchronization.md) - How to match ABC and MML speeds perfectly.

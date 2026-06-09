@@ -1,3 +1,5 @@
+author: gemini
+---
 # 📱 Termux & ARM Compatibility Guide
 
 The Music Development Suite is designed with Nix, which supports `aarch64-linux` (ARM64), the architecture used by modern Android devices running Termux.

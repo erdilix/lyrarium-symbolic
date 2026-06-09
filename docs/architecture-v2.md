@@ -1,3 +1,5 @@
+author: gemini
+---
 # Architecture v2: Standalone Music Stations
 
 ## Overview

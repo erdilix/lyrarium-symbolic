@@ -1,3 +1,5 @@
+author: gemini
+---
 # 🗺️ Development Journey: From Monolith to Standalone Stations
 
 This document chronicles the evolution of the MML & ABC Music Development Suite—a journey from a single, complex bash script to a modular ecosystem of four independent Nix applications.
