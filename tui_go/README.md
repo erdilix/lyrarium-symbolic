@@ -1,3 +1,5 @@
+author: gemini
+---
 # ABC Station TUI (Go Version)
 
 A high-performance Terminal User Interface for ABC music, built with **Go** and the **Bubbletea** framework.

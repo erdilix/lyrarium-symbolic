@@ -1,3 +1,5 @@
+author: gemini
+---
 # Rofi Composer (Editor-less Station)
 
 A high-speed musical sketchpad inspired by `cliphist`. Manage and compose ABC music entirely within Rofi prompts without opening a text editor.

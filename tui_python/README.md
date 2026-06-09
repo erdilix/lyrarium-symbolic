@@ -1,3 +1,5 @@
+author: gemini
+---
 # ABC Station TUI (Python Version)
 
 A modern Terminal User Interface for managing and live-coding ABC notation music, built with **Python** and **Textual**.

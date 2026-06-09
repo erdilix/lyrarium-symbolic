@@ -1,3 +1,5 @@
+author: gemini
+---
 # Retro MML (Smart Rofi Station)
 
 A modern, high-speed workstation for developing NES/Famicom music using MML (Music Macro Language) and Rofi.

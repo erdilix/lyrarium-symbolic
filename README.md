@@ -40,4 +40,5 @@ There are currently 4 versions of this project. you can try each of them by runn
 - [ ] TUI mode: keybinds.
 - [ ] TUI mode: no more than 1 terminal needed.
 - [ ] TUI mode: make it run in termux.
-author: zts
+author: erdilix
+
