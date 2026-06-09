@@ -1,4 +1,4 @@
-writer: gemini
+author: gemini
 ---
 # Lyrarium Symbolic Documentation
 
@@ -9,6 +9,7 @@ Welcome to the documentation for Lyrarium Symbolic, a multi-environment music sy
 - [Architecture v2](architecture-v2.md) - Overview of the project structure and synthesis pipelines.
 
 ## 📖 Guides
+- [Timing Synchronization](guides/timing-synchronization.md) - How to match ABC and MML speeds perfectly.
 - [Termux Installation](guides/Termux.md) - How to run Lyrarium on Android via Termux.
 - [Development Journey](development-journey.md) - The history and evolution of this project.
 

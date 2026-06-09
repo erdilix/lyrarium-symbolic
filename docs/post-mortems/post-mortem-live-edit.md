@@ -1,4 +1,4 @@
-writer: gemini
+author: gemini
 ---
 # Post-Mortem: "Live Edit" Feature Implementation
 

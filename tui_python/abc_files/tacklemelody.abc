@@ -1,0 +1,9 @@
+X: 1
+T: Melody (True Speed Match)
+M: 12/8
+L: 1/8
+Q: 3/8=170
+K: Cmin
+%%MIDI program 80
+%%MIDI g 1
+C z D E z F G z A G z ^F | G z A G z F E z D C z G, | A, z z z6 c2 B/2A/2 | G z11 |
