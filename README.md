@@ -11,7 +11,7 @@ There are currently 4 versions of this project. you can try each of them by runn
 1. Install Nix: 
   - `curl -fsSL https://install.determinate.systems/nix | sh -s -- install`
 2. Clone this project:
-  - `git clone https://github.com/zts/lyrarium-symbolic.git`
+  - `git clone https://github.com/erdilix/lyrarium-symbolic.git`
 3. Run: 
   - Change directory to any specific sub-project: `cd abc_midi_rofi`
   - Try it out with `nix run .`
@@ -40,5 +40,10 @@ There are currently 4 versions of this project. you can try each of them by runn
 - [ ] TUI mode: keybinds.
 - [ ] TUI mode: no more than 1 terminal needed.
 - [ ] TUI mode: make it run in termux.
+
+### Inspirations
+- MMLPlayer 
+- rmpc
+
 author: erdilix
 
