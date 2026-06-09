@@ -3,7 +3,15 @@
 # --- Configuration ---
 MML_DIR="$PWD/mml_files"
 MENU_LAUNCHER="rofi -dmenu -i -p"
-[ -z "$EDITOR" ] && EDITOR="nvim"
+
+# Smart Editor Detection
+if [ -n "$EDITOR" ]; then
+    EDITOR_CMD="$EDITOR"
+elif command -v nvim >/dev/null 2>&1; then
+    EDITOR_CMD="nvim"
+else
+    EDITOR_CMD="${NIX_EDITOR:-nvim}"
+fi
 
 mkdir -p "$MML_DIR"
 PLAYER_PID=0
@@ -61,7 +69,7 @@ do_edit_neovim() {
 
     # 2. Start the EDITOR in the current or a new terminal (Blocking)
     # Use sh -c for better compatibility and to ensure the Nix environment is respected
-    "$term_cmd" -e sh -c "cd \"$MML_DIR\" && exec \"$EDITOR\" \"$file\""
+    "$term_cmd" -e sh -c "cd \"$MML_DIR\" && exec \"$EDITOR_CMD\" \"$file\""
 
     # 3. Clean up the watcher terminal when Neovim exits
     cleanup_player
@@ -80,7 +88,7 @@ A t120 l4 o4 @01 v15
 A c e g > c < g e c
 EOF
     fi
-    "$EDITOR" "$full_path"
+    "$EDITOR_CMD" "$full_path"
 }
 
 # --- Action: Rename ---

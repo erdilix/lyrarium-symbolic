@@ -1,3 +1,5 @@
+writer: gemini
+---
 # Lyrarium Symbolic Documentation
 
 Welcome to the documentation for Lyrarium Symbolic, a multi-environment music synthesis platform.

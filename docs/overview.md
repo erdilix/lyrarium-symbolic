@@ -1,3 +1,5 @@
+writer: gemini
+---
 # Project Overview
 
 A comprehensive toolkit for retro 8-bit NES composition (MML) and modern text-based MIDI synthesis (ABC). Refactored for maximum portability and terminal independence.
@@ -26,5 +28,17 @@ Every tool in this suite is powered by Nix. Navigate to a station and run it via
 *   **`Ctrl + r`**: Rename.
 *   **`Ctrl + x`**: Delete.
 
-## 🛠️ Terminal Independent
-This suite no longer requires **Ghostty** or any specific terminal. All editing happens in your **existing** window, and all music playback happens silently in the background. It works on any machine with Nix and PulseAudio.
+## 🛠️ Portability & User Preference
+
+Lyrarium Symbolic is designed to be "zero-dependency" via Nix while remaining deeply respectful of your personal workflow.
+
+### 🖥️ Terminal Independent
+The suite does not require a specific terminal (like Ghostty or Alacritty). When launching the **Live Edit** feature, it automatically searches for available terminal emulators on your system (checking `$TERMINAL` first, then searching for `ghostty`, `alacritty`, `kitty`, `wezterm`, `foot`, etc.).
+
+### 📝 Smart Editor Support
+The suite intelligently selects which editor to use for your music files:
+1.  **User Preference (`$EDITOR`)**: If you have the `$EDITOR` environment variable set, the suite will use it (allowing you to use Emacs, Vim, Nano, etc.).
+2.  **System Native (`nvim`)**: If no `$EDITOR` is set, it tries to use the `nvim` found on your actual system to ensure your personal plugins and configurations are loaded.
+3.  **Nix Fallback**: If no editor is found on your system, it falls back to a guaranteed Neovim binary provided by the Nix Flake.
+
+All editing happens in a new terminal window, and all music playback happens in a secondary "Watcher" window for real-time visual feedback. It works on any machine with Nix and PulseAudio/PipeWire.

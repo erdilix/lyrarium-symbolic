@@ -42,7 +42,7 @@
             pkgs.abcmidi pkgs.fluidsynth pkgs.soundfont-fluid pkgs.entr pkgs.rofi pkgs.neovim pkgs.coreutils pkgs.findutils pkgs.procps pkgs.pulseaudio
             compileABC watchABC
           ]}:$PATH"
-          export EDITOR="${pkgs.neovim}/bin/nvim"
+          export NIX_EDITOR="${pkgs.neovim}/bin/nvim"
           export ABC_WATCH_BIN="${watchABC}/bin/watch-abc"
           export ABC_COMPILE_BIN="${compileABC}/bin/compile-abc"
           ${builtins.readFile ./abc-station.sh}

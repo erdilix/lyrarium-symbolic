@@ -3,7 +3,15 @@
 # --- Configuration ---
 MML_DIR="$PWD/mml_files"
 MENU_LAUNCHER="rofi -dmenu -i -p"
-[ -z "$EDITOR" ] && EDITOR="nvim"
+
+# Smart Editor Detection
+if [ -n "$EDITOR" ]; then
+    EDITOR_CMD="$EDITOR"
+elif command -v nvim >/dev/null 2>&1; then
+    EDITOR_CMD="nvim"
+else
+    EDITOR_CMD="${NIX_EDITOR:-nvim}"
+fi
 
 mkdir -p "$MML_DIR"
 PLAYER_PID=0
@@ -64,7 +72,7 @@ watch_retro() {
         fi
         PLAYER_PID=$!
         
-        "$EDITOR" "$MML_DIR/$file"
+        "$EDITOR_CMD" "$MML_DIR/$file"
         
         cleanup_player
     fi
@@ -74,7 +82,7 @@ watch_retro() {
 edit_mml() {
     local file
     file=$(find "$MML_DIR" -type f -name "*.mml" -printf "%P\n" | $MENU_LAUNCHER "Select MML to Edit:")
-    [ -n "$file" ] && "$EDITOR" "$MML_DIR/$file"
+    [ -n "$file" ] && "$EDITOR_CMD" "$MML_DIR/$file"
 }
 
 # --- Main Runner ---

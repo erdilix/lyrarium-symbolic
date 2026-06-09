@@ -1,3 +1,5 @@
+writer: gemini
+---
 # Post-Mortem: "Live Edit" Feature Implementation
 
 **Date:** June 9, 2026
@@ -36,6 +38,7 @@ This provides immediate visual confirmation of the "Live" status.
 Ensured that all spawned terminals explicitly `cd` into the relevant data directories (`abc_files` or `mml_files`) before executing their payloads, resolving "file not found" errors.
 
 ## Lessons Learned
-- **Visibility is key**: Users need to see what's happening when a process is "Live." Silence is confusing.
-- **Process Management is tricky**: Always use `setsid` when spawning long-running background tasks that need to be cleaned up later.
-- **Nix Pathing**: Sub-terminals may not inherit the Nix `PATH` correctly; using absolute paths for `EDITOR` and other key binaries in the flake is the safest approach.
+- **Visibility is key**: Users need to see what's happening when a process is "Live." The Dual-Terminal approach resolved the "black box" confusion.
+- **Process Management is tricky**: Always use `setsid` when spawning long-running background tasks to ensure clean termination without killing the parent script.
+- **Smart Fallbacks over Hardcoding**: Providing a "Nix Fallback" while checking for user-native binaries (like `$EDITOR` or system `nvim`) provides the best balance between portability and user preference.
+- **Absolute Paths in Nix**: When launching sub-terminals, using absolute paths for Nix-provided fallbacks (e.g., `NIX_EDITOR`) ensures the script works even if the sub-terminal doesn't inherit the session's `PATH`.

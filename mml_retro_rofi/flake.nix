@@ -71,7 +71,7 @@
             ppmck pkgs.rofi pkgs.zxtune pkgs.entr pkgs.furnace pkgs.coreutils pkgs.findutils pkgs.procps pkgs.neovim
             compileMML watchMML 
           ]}:$PATH"
-          export EDITOR="${pkgs.neovim}/bin/nvim"
+          export NIX_EDITOR="${pkgs.neovim}/bin/nvim"
           export MML_WATCH_BIN="${watchMML}/bin/watch-mml"
           export MML_COMPILE_BIN="${compileMML}/bin/compile-mml"
           ${builtins.readFile ./mml-station.sh}

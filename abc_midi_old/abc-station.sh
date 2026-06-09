@@ -3,7 +3,15 @@
 # --- Configuration ---
 ABC_DIR="$PWD/abc_files"
 MENU_LAUNCHER="rofi -dmenu -i -p"
-[ -z "$EDITOR" ] && EDITOR="nvim"
+
+# Smart Editor Detection
+if [ -n "$EDITOR" ]; then
+    EDITOR_CMD="$EDITOR"
+elif command -v nvim >/dev/null 2>&1; then
+    EDITOR_CMD="nvim"
+else
+    EDITOR_CMD="${NIX_EDITOR:-nvim}"
+fi
 
 mkdir -p "$ABC_DIR"
 PLAYER_PID=0
@@ -64,7 +72,7 @@ watch_midi() {
         fi
         PLAYER_PID=$!
         
-        "$EDITOR" "$ABC_DIR/$file"
+        "$EDITOR_CMD" "$ABC_DIR/$file"
         
         cleanup_player
     fi
@@ -86,14 +94,14 @@ K: C
 CDEF GABc |
 EOF
     fi
-    "$EDITOR" "$full_path"
+    "$EDITOR_CMD" "$full_path"
 }
 
 # --- Action: Edit ---
 edit_abc() {
     local file
     file=$(find "$ABC_DIR" -type f -name "*.abc" -printf "%P\n" | $MENU_LAUNCHER "Select ABC to Edit:")
-    [ -n "$file" ] && "$EDITOR" "$ABC_DIR/$file"
+    [ -n "$file" ] && "$EDITOR_CMD" "$ABC_DIR/$file"
 }
 
 # --- Main Runner ---
