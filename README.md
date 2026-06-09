@@ -37,5 +37,5 @@ There are currently 4 version of this project. you can try each of them by run `
 - [ ] refactor: make it minimal, get rid of unnecessary bloated logics.
 - [ ] TUI mode: keybinds.
 - [ ] TUI mode: no more than 1 terminal needed.
-
+- [ ] TUI mode: make it run in termux.
 author: erdilix
