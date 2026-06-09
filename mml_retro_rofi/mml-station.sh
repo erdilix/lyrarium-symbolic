@@ -11,10 +11,16 @@ PLAYER_PID=0
 # --- Helper: Sound Cleanup ---
 cleanup_player() {
     if [ "$PLAYER_PID" -ne 0 ]; then
-        # Use pgid to kill the entire background group
-        local pgid=$(ps -o pgid= -p $PLAYER_PID | tr -d ' ')
-        if [ -n "$pgid" ] && [[ "$pgid" =~ ^[0-9]+$ ]]; then
+        # Find PGID and kill group, but ONLY if it's not our own group!
+        local pgid
+        pgid=$(ps -o pgid= -p $PLAYER_PID | tr -d ' ')
+        local my_pgid
+        my_pgid=$(ps -o pgid= -p $$ | tr -d ' ')
+
+        if [ -n "$pgid" ] && [[ "$pgid" =~ ^[0-9]+$ ]] && [ "$pgid" != "$my_pgid" ]; then
             kill -- -"$pgid" 2>/dev/null
+        else
+            kill "$PLAYER_PID" 2>/dev/null
         fi
         PLAYER_PID=0
     fi
@@ -25,8 +31,7 @@ do_play() {
     local file="$1"
     cleanup_player
     COMPILE_BIN=${MML_COMPILE_BIN:-compile-mml}
-    # setsid ensures we have a separate PGID we can kill later
-    setsid bash -c "cd '$MML_DIR' && '$COMPILE_BIN' '$file'" >/dev/null 2>&1 &
+    (cd "$MML_DIR" && exec setsid "$COMPILE_BIN" "$file" >/dev/null 2>&1) &
     PLAYER_PID=$!
 }
 
@@ -34,10 +39,31 @@ do_play() {
 do_edit_neovim() {
     local file="$1"
     cleanup_player
+    
+    # Robust terminal detection
+    local term_cmd=""
+    for term in "$TERMINAL" x-terminal-emulator ghostty alacritty kitty xterm; do
+        if [ -n "$term" ] && command -v "$term" >/dev/null 2>&1; then
+            term_cmd="$term"
+            break
+        fi
+    done
+
+    if [ -z "$term_cmd" ]; then
+        notify-send "MML Station" "No terminal emulator found!"
+        return
+    fi
+
+    # 1. Start the watcher in the BACKGROUND with setsid and CD
     WATCH_BIN=${MML_WATCH_BIN:-watch-mml}
-    setsid bash -c "cd '$MML_DIR' && '$WATCH_BIN' '$file'" >/dev/null 2>&1 &
+    (cd "$MML_DIR" && exec setsid "$WATCH_BIN" "$file" < /dev/null > /dev/null 2>&1) &
     PLAYER_PID=$!
-    "$EDITOR" "$MML_DIR/$file"
+
+    # 2. Start the editor in the FOREGROUND terminal (BLOCKING)
+    "$term_cmd" -e "$EDITOR" "$MML_DIR/$file"
+
+    # 3. Clean up
+    cleanup_player
 }
 
 # --- Action: Create New ---
@@ -92,45 +118,22 @@ select_file_smart() {
         -mesg "Enter: Play (BG) | Ctrl+s: Edit | Ctrl+t: New | Ctrl+r: Rename"
 }
 
-smart_jukebox_retro() {
-    while true; do
-        local file
-        file=$(select_file_smart "📻 Smart MML Jukebox:")
-        local exit_code=$?
-        if [ -z "$file" ] && [ "$exit_code" -ne 13 ]; then
-            cleanup_player
-            return
-        fi
-        case "$exit_code" in
-            0)  do_play "$file" ;;
-            10) do_edit_neovim "$file" ;;
-            11) do_rename "$file" ;;
-            12) do_delete "$file" ;;
-            13) do_create ;;
-        esac
-    done
-}
-
-launch_tools() {
-    local choice
-    choice=$(echo -e "📝 Edit MML\n✨ Create New MML\n⬅️ Back" | $MENU_LAUNCHER "MML Tools:")
-    case "$choice" in
-        *Edit*)    
-            local file
-            file=$(find "$MML_DIR" -type f -name "*.mml" -printf "%P\n" | $MENU_LAUNCHER "Select MML to Edit:")
-            [ -n "$file" ] && "$EDITOR" "$MML_DIR/$file"
-            ;;
-        *Create*)  do_create ;;
-        *)         return ;;
-    esac
-}
-
+# --- Main Loop ---
 while true; do
-    choice=$(echo -e "🎵 Smart Jukebox (Play/Edit)\n🛠️ Tools & Management\n❌ Exit" | $MENU_LAUNCHER "MML Station:")
-    case "$choice" in
-        *"Smart Jukebox"*)     smart_jukebox_retro ;;
-        *"Tools"*)             launch_tools ;;
-        *"Exit"*)              cleanup_player; exit 0 ;;
-        *)                     cleanup_player; exit 0 ;;
+    file=$(select_file_smart "📻 Smart MML Jukebox:")
+    exit_code=$?
+    
+    # If no file selected (and not Ctrl+t), cleanup and exit
+    if [ -z "$file" ] && [ "$exit_code" -ne 13 ]; then
+        cleanup_player
+        exit 0
+    fi
+
+    case "$exit_code" in
+        0)  do_play "$file" ;;
+        10) do_edit_neovim "$file" ;;
+        11) do_rename "$file" ;;
+        12) do_delete "$file" ;;
+        13) do_create ;;
     esac
 done

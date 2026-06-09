@@ -23,7 +23,7 @@ play_retro() {
     if [ -n "$file" ]; then
         cleanup_player
         COMPILE_BIN=${MML_COMPILE_BIN:-compile-mml}
-        setsid bash -c "cd '$MML_DIR' && '$COMPILE_BIN' '$file'" >/dev/null 2>&1 &
+        (cd "$MML_DIR" && "$COMPILE_BIN" "$file") >/dev/null 2>&1 &
         PLAYER_PID=$!
     fi
 }
@@ -35,9 +35,12 @@ watch_retro() {
     if [ -n "$file" ]; then
         cleanup_player
         WATCH_BIN=${MML_WATCH_BIN:-watch-mml}
-        setsid bash -c "cd '$MML_DIR' && '$WATCH_BIN' '$file'" >/dev/null 2>&1 &
+        (cd "$MML_DIR" && "$WATCH_BIN" "$file") >/dev/null 2>&1 &
         PLAYER_PID=$!
+        
         "$EDITOR" "$MML_DIR/$file"
+        
+        cleanup_player
     fi
 }
 

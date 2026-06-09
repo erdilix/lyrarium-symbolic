@@ -11,10 +11,16 @@ PLAYER_PID=0
 # --- Helper: Sound Cleanup ---
 cleanup_player() {
     if [ "$PLAYER_PID" -ne 0 ]; then
-        # Find PGID and kill group
-        local pgid=$(ps -o pgid= -p $PLAYER_PID | tr -d ' ')
-        if [ -n "$pgid" ] && [[ "$pgid" =~ ^[0-9]+$ ]]; then
+        # Find PGID and kill group, but ONLY if it's not our own group!
+        local pgid
+        pgid=$(ps -o pgid= -p $PLAYER_PID | tr -d ' ')
+        local my_pgid
+        my_pgid=$(ps -o pgid= -p $$ | tr -d ' ')
+
+        if [ -n "$pgid" ] && [[ "$pgid" =~ ^[0-9]+$ ]] && [ "$pgid" != "$my_pgid" ]; then
             kill -- -"$pgid" 2>/dev/null
+        else
+            kill "$PLAYER_PID" 2>/dev/null
         fi
         PLAYER_PID=0
     fi
@@ -25,7 +31,8 @@ do_play() {
     local file="$1"
     cleanup_player
     COMPILE_BIN=${ABC_COMPILE_BIN:-compile-abc}
-    setsid bash -c "cd '$ABC_DIR' && '$COMPILE_BIN' '$file'" >/dev/null 2>&1 &
+    # Use subshell to CD, and setsid to ensure a clean PGID
+    (cd "$ABC_DIR" && exec setsid "$COMPILE_BIN" "$file" >/dev/null 2>&1) &
     PLAYER_PID=$!
 }
 
@@ -33,10 +40,31 @@ do_play() {
 do_edit_neovim() {
     local file="$1"
     cleanup_player
+    
+    # Robust terminal detection
+    local term_cmd=""
+    for term in "$TERMINAL" x-terminal-emulator ghostty alacritty kitty xterm; do
+        if [ -n "$term" ] && command -v "$term" >/dev/null 2>&1; then
+            term_cmd="$term"
+            break
+        fi
+    done
+
+    if [ -z "$term_cmd" ]; then
+        notify-send "ABC Station" "No terminal emulator found!"
+        return
+    fi
+
+    # 1. Start the watcher in the BACKGROUND with setsid and CD
     WATCH_BIN=${ABC_WATCH_BIN:-watch-abc}
-    setsid bash -c "cd '$ABC_DIR' && '$WATCH_BIN' '$file'" >/dev/null 2>&1 &
+    (cd "$ABC_DIR" && exec setsid "$WATCH_BIN" "$file" < /dev/null > /dev/null 2>&1) &
     PLAYER_PID=$!
-    "$EDITOR" "$ABC_DIR/$file"
+
+    # 2. Start the editor in the FOREGROUND terminal (BLOCKING)
+    "$term_cmd" -e "$EDITOR" "$ABC_DIR/$file"
+
+    # 3. Clean up
+    cleanup_player
 }
 
 # --- Action: Create New ---
@@ -94,45 +122,22 @@ select_abc_smart() {
         -mesg "Enter: Play (BG) | Ctrl+s: Edit | Ctrl+t: New | Ctrl+r: Rename"
 }
 
-smart_jukebox_midi() {
-    while true; do
-        local file
-        file=$(select_abc_smart "🎹 Smart ABC Jukebox:")
-        local exit_code=$?
-        if [ -z "$file" ] && [ "$exit_code" -ne 13 ]; then
-            cleanup_player
-            return
-        fi
-        case "$exit_code" in
-            0)  do_play "$file" ;;
-            10) do_edit_neovim "$file" ;;
-            11) do_rename "$file" ;;
-            12) do_delete "$file" ;;
-            13) do_create ;;
-        esac
-    done
-}
-
-launch_tools() {
-    local choice
-    choice=$(echo -e "📝 Edit ABC\n✨ Create New ABC\n⬅️ Back" | $MENU_LAUNCHER "ABC Tools:")
-    case "$choice" in
-        *Edit*)    
-            local file
-            file=$(find "$ABC_DIR" -type f -name "*.abc" -printf "%P\n" | $MENU_LAUNCHER "Select ABC to Edit:")
-            [ -n "$file" ] && "$EDITOR" "$ABC_DIR/$file"
-            ;;
-        *Create*)  do_create ;;
-        *)         return ;;
-    esac
-}
-
+# --- Main Loop ---
 while true; do
-    choice=$(echo -e "🎵 Smart Jukebox (Play/Edit)\n🛠️ Tools & Management\n❌ Exit" | $MENU_LAUNCHER "ABC Station:")
-    case "$choice" in
-        *"Smart Jukebox"*)     smart_jukebox_midi ;;
-        *"Tools"*)             launch_tools ;;
-        *"Exit"*)              cleanup_player; exit 0 ;;
-        *)                     cleanup_player; exit 0 ;;
+    file=$(select_abc_smart "🎹 Smart ABC Jukebox:")
+    exit_code=$?
+    
+    # If no file selected (and not Ctrl+t), cleanup and exit
+    if [ -z "$file" ] && [ "$exit_code" -ne 13 ]; then
+        cleanup_player
+        exit 0
+    fi
+
+    case "$exit_code" in
+        0)  do_play "$file" ;;
+        10) do_edit_neovim "$file" ;;
+        11) do_rename "$file" ;;
+        12) do_delete "$file" ;;
+        13) do_create ;;
     esac
 done

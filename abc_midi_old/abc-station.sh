@@ -23,7 +23,7 @@ play_midi() {
     if [ -n "$file" ]; then
         cleanup_player
         COMPILE_BIN=${ABC_COMPILE_BIN:-compile-abc}
-        setsid bash -c "cd '$ABC_DIR' && '$COMPILE_BIN' '$file'" >/dev/null 2>&1 &
+        (cd "$ABC_DIR" && "$COMPILE_BIN" "$file") >/dev/null 2>&1 &
         PLAYER_PID=$!
     fi
 }
@@ -35,9 +35,12 @@ watch_midi() {
     if [ -n "$file" ]; then
         cleanup_player
         WATCH_BIN=${ABC_WATCH_BIN:-watch-abc}
-        setsid bash -c "cd '$ABC_DIR' && '$WATCH_BIN' '$file'" >/dev/null 2>&1 &
+        (cd "$ABC_DIR" && "$WATCH_BIN" "$file") >/dev/null 2>&1 &
         PLAYER_PID=$!
+        
         "$EDITOR" "$ABC_DIR/$file"
+        
+        cleanup_player
     fi
 }
 
