@@ -1,0 +1,48 @@
+# Nix
+.direnv/
+result
+result-*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+*~
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.build/
+
+# Go
+bin/
+/tui_go/tui_go
+/tui_go/main
+
+# Generated Audio and Data
+*.mid
+*.wav
+*.nsf
+# Many .h files in this project are generated from MML
+*.h
+
+# Environment and Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs
+*.log

@@ -1,0 +1,13 @@
+X: 1
+T: The Executioner (Natural Accidentals)
+C: erdilix
+M: 4/4
+L: 1/16
+Q: 1/4=60
+K: Fm
+V: 1 name="Melody"
+%%MIDI program 1
+F,C=EF GCFG _ACGC FC=EC | _DC_DE FG_A_B cG_A_B _AGFE |
+V: 2 name="Bass"
+%%MIDI program 19
+F,,C,=E,F, G,C,F,G, _A,C,G,C F,C,=E,C | _D,C,_D,E, F,G,_A,_B, C,G,_A,_B, _A,G,F,E, |
