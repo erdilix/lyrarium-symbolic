@@ -61,4 +61,4 @@ Instead of attempting to pass include flags, we transitioned to a **Wrapper + Sy
 3.  **Environment-Specific Dependencies:** Just because a player *can* support a format doesn't mean the specific build in the environment *does*. Always check `mpv --demuxer=help` or verbose logs.
 
 ## Verification
-Compilation and playback were verified for `theexecutioner.mml`. The resulting `theexecutioner.nsf` (8KB) plays correctly with full visualization in `zxtune123`.
+Compilation and playback were verified for `tackle.mml`. The resulting `tackle.nsf` (8KB) plays correctly with full visualization in `zxtune123`.
